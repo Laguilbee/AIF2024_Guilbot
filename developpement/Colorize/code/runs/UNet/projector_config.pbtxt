@@ -1,0 +1,9 @@
+embeddings {
+  tensor_name: "default:00001"
+  sprite {
+    image_path: "00001/default/sprite.png"
+    single_image_dim: 224
+    single_image_dim: 224
+  }
+  tensor_path: "00001/default/tensors.tsv"
+}

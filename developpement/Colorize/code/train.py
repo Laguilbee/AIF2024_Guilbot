@@ -10,8 +10,21 @@ from tqdm import tqdm
 
 from data_utils import get_colorized_dataset_loader
 from model import UNet
+
+print(f"PyTorch version: {torch.__version__}")
+
+# Check PyTorch has access to MPS (Metal Performance Shader, Apple's GPU architecture)
+print(f"Is MPS (Metal Performance Shader) built? {torch.backends.mps.is_built()}")
+print(f"Is MPS available? {torch.backends.mps.is_available()}")
+
+
 # setting device on GPU if available, else CPU
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = "mps" if torch.backends.mps.is_available() else "cpu"
+device = torch.device(device)
+print(f"Using device: {device}")
+
+
+#device = torch.device('cpu')
 
 def train(net, optimizer, loader, epochs=5, writer=None):
     criterion = torch.nn.MSELoss()
@@ -38,7 +51,7 @@ def train(net, optimizer, loader, epochs=5, writer=None):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', type=str, default = '../data/landscapes', help='dataset path')
+    parser.add_argument('--data_path', type=str, default = '../../data/landscapes', help='dataset path')
     parser.add_argument('--batch_size', type=int, default = int(32), help='batch_size')
     parser.add_argument('--lr', type=float, default = float(1e-3), help='learning rate')
     parser.add_argument('--epochs', type=int, default = int(10), help='number of epochs')
@@ -49,7 +62,8 @@ if __name__=='__main__':
     lr = args.lr
     epochs = args.epochs
     
-    unet = UNet().cuda()
+    #unet = UNet()
+    unet = UNet().to(device)
     loader = get_colorized_dataset_loader(path=data_path, 
                                         batch_size=batch_size, 
                                         shuffle=True, 
