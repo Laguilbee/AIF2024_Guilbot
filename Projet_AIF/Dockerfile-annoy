@@ -1,0 +1,17 @@
+FROM python:3.8
+
+WORKDIR /app
+
+COPY . /app
+COPY Anno_Index/annoy_index.ann /app/annoy_index.ann
+COPY Dataframe/dataframe.pkl /app/dataframe.pkl
+
+
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN pip install annoy
+
+EXPOSE 5000
+
+ENV FLASK_ENV=production
+
+CMD ["python", "systeme_reco_api.py"]

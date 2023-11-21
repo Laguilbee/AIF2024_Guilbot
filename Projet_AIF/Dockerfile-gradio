@@ -1,0 +1,13 @@
+FROM python:3.8
+
+WORKDIR /app
+
+COPY MLP-20M/MLP-20M /app/MLP-20M/MLP-20M/
+
+COPY . /app
+
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+EXPOSE 8000
+
+CMD ["python", "gradio_app.py"]

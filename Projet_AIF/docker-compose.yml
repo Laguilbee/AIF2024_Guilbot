@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  gradio-app:
+    build:
+      context: .
+      dockerfile: Dockerfile-gradio
+    ports:
+      - "8000:8000"
+    depends_on:
+      - annoy-db
+
+  annoy-db:
+    build:
+      context: .
+      dockerfile: Dockerfile-annoy
+    ports:
+      - "5001:5000"
