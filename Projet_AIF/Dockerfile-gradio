@@ -1,13 +1,17 @@
 FROM python:3.8
 
-WORKDIR /app
-
-COPY MLP-20M/MLP-20M /app/MLP-20M/MLP-20M/
+RUN pip install jinja2
+RUN pip install gradio 
 
 COPY . /app
 
+COPY MLP-20M/MLP-20M /app/MLP-20M/MLP-20M/
+
+WORKDIR /app
+
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
-EXPOSE 8000
+EXPOSE 7860
 
 CMD ["python", "gradio_app.py"]
+

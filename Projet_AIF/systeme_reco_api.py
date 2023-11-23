@@ -5,13 +5,14 @@ from flask import Flask, request, jsonify
 from PIL import Image
 import io
 from annoy import AnnoyIndex
+import os
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 app = Flask(__name__)
 
 #MODEL_PATH = '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Anno_Index/annoy_index.ann'
-MODEL_PATH = '/app/annoy_index.ann'
+MODEL_PATH = '/app/Anno_Index/annoy_index.ann'
 # Charger votre index Annoy
 dim = 576  # Dimension des vecteurs de caractéristiques (ajustez selon votre modèle)
 annoy_index = AnnoyIndex(dim, 'angular')
@@ -37,4 +38,5 @@ def recommend():
     return jsonify(paths_list)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5066))
+    app.run(debug=True,host='0.0.0.0',port=port)

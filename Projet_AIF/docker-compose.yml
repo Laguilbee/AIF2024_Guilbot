@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile-gradio
     ports:
-      - "8000:8000"
+      - "7860:7860"
     depends_on:
       - annoy-db
 
@@ -14,4 +14,4 @@ services:
       context: .
       dockerfile: Dockerfile-annoy
     ports:
-      - "5001:5000"
+      - "5066:5066"
