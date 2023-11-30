@@ -1,11 +1,20 @@
 import pandas as pd
 import re
+import pickle
 import torch
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from transformers import DistilBertModel,DistilBertTokenizerFast
 from tqdm.notebook import tqdm
-
+from annoy import AnnoyIndex
+import pickle
+import torch
+import torchvision.transforms as transforms
+from flask import Flask, request, jsonify
+from PIL import Image
+import io
+from annoy import AnnoyIndex
+import os
 
 def clean_text(text):
     # Supprimer les caractères spéciaux et les chiffres
@@ -70,13 +79,31 @@ class MovieSynopsisEmbedder:
     def save_embeddings(self, output_path):
       df_with_embeddings = self.add_embeddings_to_df()
       df_with_embeddings.to_pickle(output_path)
-    
+
+def get_annoy_index_movies_text():
+    df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl')
+    dim = len(df['embeddings'][0])  # La longueur des vecteurs de caractéristiques
+    #print(dim) -> 768
+    annoy_index = AnnoyIndex(dim, 'angular')
+
+    for i, embedding in enumerate(df['embeddings']):
+        annoy_index.add_item(i, embedding)
+
+    annoy_index.build(10)
+
+    #Enregistrement de l'index
+    annoy_index.save('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Anno_Index/annoy_movies_index.ann') 
 
 def main():
-    embedder = MovieSynopsisEmbedder('/content/movies_metadata.csv')
-    df_with_embeddings = embedder.add_embeddings_to_df()
-    embedder.save_embeddings('/content/movies_with_embeddings.pkl')
-
+    # embedder = MovieSynopsisEmbedder('/content/movies_metadata.csv')
+    # df_with_embeddings = embedder.add_embeddings_to_df()
+    # embedder.save_embeddings('/content/movies_with_embeddings.pkl')
+    # get_annoy_index_movies_text()
+    print(pd.__version__)
+    with open('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl', 'rb') as file:
+            df_text = pickle.load(file)
+    #pd.__version__
+    print(df_text)
 
 if __name__ == "__main__":
     main()

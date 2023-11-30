@@ -50,8 +50,8 @@ def predict(image):
     feature_vector = extract_features(image, model).flatten()
     print("feature_vector = ",feature_vector)
     response = requests.post(
-        "http://annoy-db:5066/recommend", 
-        json={"vector": feature_vector.tolist()}
+        "http://0.0.0.0:5066/recommend", 
+        json={"vector": feature_vector.tolist(),"image_bool":True}
     )
 
     if response.status_code == 200:
