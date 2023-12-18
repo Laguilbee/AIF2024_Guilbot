@@ -10,6 +10,8 @@ import requests
 import json
 import io
 from gradio.components import Image as GradioImage
+from transformers import DistilBertModel,DistilBertTokenizerFast
+import re
 
 # Vérification de la disponibilité de CUDA
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -31,7 +33,16 @@ def init_model(device):
     model.eval()
     return model
 
+def init_distilbert_model(device):
+    tokenizer_model='distilbert-base-uncased'
+    model = DistilBertModel.from_pretrained(tokenizer_model)
+    model.to(device)
+    model.eval()
+    return model
+
 model = init_model(device)
+distilBertModel = init_distilbert_model(device)
+
 
 def normalize_image(image):
     # Convertir l'image NumPy en image PIL si nécessaire
@@ -46,9 +57,23 @@ def extract_features(image, model):
         features = model(image_tensor)
     return features.cpu().numpy()
 
-def predict(image):
+def clean_text(text):
+    # Supprimer les caractères spéciaux et les chiffres
+    text = re.sub(r'[^a-zA-Z\s]', '', text)
+    # Convertir en minuscules
+    text = text.lower()
+    return text
+
+
+
+
+
+
+
+
+def predict_images_with_image(image):
     feature_vector = extract_features(image, model).flatten()
-    print("feature_vector = ",feature_vector)
+    #print("feature_vector = ",feature_vector)
     response = requests.post(
         "http://0.0.0.0:5066/recommend", 
         json={"vector": feature_vector.tolist(),"image_bool":True}
@@ -66,14 +91,73 @@ def predict(image):
         print(f"Erreur API: {response.status_code}")
         return f"Erreur API: {response.status_code}"
 
+def predict_images_with_text(description):
+    description = clean_text(description)
+    tokenizer_model='distilbert-base-uncased'
+    tokenizer = DistilBertTokenizerFast.from_pretrained(tokenizer_model)
+
+    tokenized_input = tokenizer(description, return_tensors="pt", padding=True, truncation=True, max_length=512)
+    input_ids = tokenized_input['input_ids'].to(device)
+    attention_mask = tokenized_input['attention_mask'].to(device)
+    
+    with torch.no_grad():
+        outputs = distilBertModel(input_ids, attention_mask=attention_mask)
+        last_hidden_states = outputs.last_hidden_state[:, 0, :]
+        embeddings = last_hidden_states.cpu().numpy()
+
+    print(embeddings)
+        
+    #print(embedding)
+    # feature_vector = extract_features(image, model).flatten()
+    # #print("feature_vector = ",feature_vector)
+    # response = requests.post(
+    #     "http://0.0.0.0:5066/recommend", 
+    #     json={"vector": feature_vector.tolist(),"image_bool":True}
+    # )
+
+    # if response.status_code == 200:
+    #     list_path = response.json()
+    #     images = []
+    #     for path in list_path:
+    #         image = PILImage.open(path)
+    #         images.append(image)
+
+    #     return images 
+    # else:
+    #     print(f"Erreur API: {response.status_code}")
+    #     return f"Erreur API: {response.status_code}"
+
 
 if __name__ == '__main__':
+
+
+    with gr.Blocks() as demo:
+        gr.Markdown("Système de recommandation.")
+        with gr.Tab("Recommandation de film par synopsis"):
+            text_input = gr.Textbox()
+            text_output = gr.Textbox()
+            text_button = gr.Button("Prédire")
+            text_button.click(predict_images_with_text, inputs=text_input, outputs=text_output)
+        with gr.Tab("Recommandation de film par affiche"):
+            with gr.Row():
+                image_input = gr.Image(label="Déposer votre affiche de film ici : ")
+                image_output = [GradioImage(type="pil",label="Film n°"+str(i)+" recommandé : ") for i in range(5)]
+            image_button = gr.Button("Prédire")
+            refresh_button = gr.Button("Rafraichir")
+            image_button.click(predict_images_with_image, inputs=image_input, outputs=image_output)
+            #refresh_button.click()
+
+    #text_button.click(flip_text, inputs=text_input, outputs=text_output)
     
-    gr.Interface(
-        fn=predict,
-        inputs="image",
-        outputs=[GradioImage(type="pil") for _ in range(5)],
-        live=True,
-        description="Upload an image to get recommendations."
-    ).launch(server_name="0.0.0.0")
+
+    demo.launch(server_name="0.0.0.0")
+
+    
+    # gr.Interface(
+    #     fn=predict,
+    #     inputs="image",
+    #     outputs=[GradioImage(type="pil") for _ in range(5)],
+    #     live=True,
+    #     description="Upload an image to get recommendations."
+    # ).launch(server_name="0.0.0.0")
 

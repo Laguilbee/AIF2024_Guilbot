@@ -34,6 +34,7 @@ def search(image_bool, query_vector, k=5):
         else:
             indices = annoy_index_text.get_nns_by_vector(query_vector, k)
             titles = df_text['title'][indices]
+            print("les titres : ",titles)
             return titles
     except Exception as e:
         print(f"Error in search: {e}")
@@ -48,7 +49,7 @@ def recommend():
     if vector is None:
         return jsonify({"error": "No vector provided"}), 400
 
-    results = search(True, vector, 5).tolist()
+    results = search(image_bool, vector, 5).tolist()
     return jsonify(results)
 
 if __name__ == '__main__':
