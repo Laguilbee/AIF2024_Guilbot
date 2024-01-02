@@ -6,15 +6,15 @@ import os
 app = Flask(__name__)
 
 # Chemins vers les fichiers d'index et de données
-MODEL_PATH_SYST_RECO = os.getenv('MODEL_PATH_SYST_RECO', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Anno_Index/annoy_index.ann')
-MODEL_PATH_TEXT = os.getenv('MODEL_PATH_TEXT', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Anno_Index/annoy_movies_index.ann')
-DATAFRAME_IMAGE_PATH = os.getenv('DATAFRAME_IMAGE_PATH', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/dataframe.pkl')
-DATAFRAME_TEXT_PATH = os.getenv('DATAFRAME_TEXT_PATH', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl')
+# MODEL_PATH_SYST_RECO = os.getenv('MODEL_PATH_SYST_RECO', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Anno_Index/annoy_index.ann')
+# MODEL_PATH_TEXT = os.getenv('MODEL_PATH_TEXT', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Anno_Index/annoy_movies_index.ann')
+# DATAFRAME_IMAGE_PATH = os.getenv('DATAFRAME_IMAGE_PATH', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/dataframe.pkl')
+# DATAFRAME_TEXT_PATH = os.getenv('DATAFRAME_TEXT_PATH', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl')
 
-# MODEL_PATH_SYST_RECO = os.getenv('MODEL_PATH_SYST_RECO', '/app/Anno_Index/annoy_index.ann')
-# MODEL_PATH_TEXT = os.getenv('MODEL_PATH_TEXT', '/app/Anno_Index/annoy_movies_index.ann')
-# DATAFRAME_IMAGE_PATH = os.getenv('DATAFRAME_IMAGE_PATH', '/app/Dataframe/dataframe.pkl')
-# DATAFRAME_TEXT_PATH = os.getenv('DATAFRAME_TEXT_PATH', '/app/Dataframe/movies_with_embeddings.pkl')
+MODEL_PATH_SYST_RECO = os.getenv('MODEL_PATH_SYST_RECO', '/app/Anno_Index/annoy_index.ann')
+MODEL_PATH_TEXT = os.getenv('MODEL_PATH_TEXT', '/app/Anno_Index/annoy_movies_index.ann')
+DATAFRAME_IMAGE_PATH = os.getenv('DATAFRAME_IMAGE_PATH', '/app/Dataframe/dataframe.pkl')
+DATAFRAME_TEXT_PATH = os.getenv('DATAFRAME_TEXT_PATH', '/app/Dataframe/movies_with_embeddings.pkl')
 
 
 # Chargement des index et des dataframes une seule fois
