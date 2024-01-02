@@ -7,8 +7,6 @@ from torchvision.transforms.functional import to_pil_image
 import numpy as np
 import torchvision.models as models
 import requests
-import json
-import io
 from gradio.components import Image as GradioImage
 from transformers import DistilBertModel,DistilBertTokenizerFast
 import re
@@ -64,18 +62,11 @@ def clean_text(text):
     text = text.lower()
     return text
 
-
-
-
-
-
-
-
 def predict_images_with_image(image):
     feature_vector = extract_features(image, model).flatten()
     #print("feature_vector = ",feature_vector)
     response = requests.post(
-        "http://0.0.0.0:5066/recommend", 
+        "http://annoy-db:5066/recommend", 
         json={"vector": feature_vector.tolist(),"image_bool":True}
     )
 
@@ -103,29 +94,21 @@ def predict_images_with_text(description):
     with torch.no_grad():
         outputs = distilBertModel(input_ids, attention_mask=attention_mask)
         last_hidden_states = outputs.last_hidden_state[:, 0, :]
-        embeddings = last_hidden_states.cpu().numpy()
+        embeddings = last_hidden_states.cpu().numpy().flatten()
 
-    print(embeddings)
-        
-    #print(embedding)
-    # feature_vector = extract_features(image, model).flatten()
-    # #print("feature_vector = ",feature_vector)
-    # response = requests.post(
-    #     "http://0.0.0.0:5066/recommend", 
-    #     json={"vector": feature_vector.tolist(),"image_bool":True}
-    # )
 
-    # if response.status_code == 200:
-    #     list_path = response.json()
-    #     images = []
-    #     for path in list_path:
-    #         image = PILImage.open(path)
-    #         images.append(image)
+    response = requests.post(
+        "http://annoy-db:5066/recommend", 
+        json={"vector": embeddings.tolist(),"image_bool":False}
+    )
 
-    #     return images 
-    # else:
-    #     print(f"Erreur API: {response.status_code}")
-    #     return f"Erreur API: {response.status_code}"
+    print("reponse : ",response)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Erreur API: {response.status_code}")
+        return f"Erreur API: {response.status_code}"
 
 
 if __name__ == '__main__':
@@ -145,19 +128,8 @@ if __name__ == '__main__':
             image_button = gr.Button("Prédire")
             refresh_button = gr.Button("Rafraichir")
             image_button.click(predict_images_with_image, inputs=image_input, outputs=image_output)
-            #refresh_button.click()
 
-    #text_button.click(flip_text, inputs=text_input, outputs=text_output)
     
 
     demo.launch(server_name="0.0.0.0")
-
-    
-    # gr.Interface(
-    #     fn=predict,
-    #     inputs="image",
-    #     outputs=[GradioImage(type="pil") for _ in range(5)],
-    #     live=True,
-    #     description="Upload an image to get recommendations."
-    # ).launch(server_name="0.0.0.0")
 

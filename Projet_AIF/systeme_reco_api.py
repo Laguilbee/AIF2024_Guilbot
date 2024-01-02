@@ -11,6 +11,12 @@ MODEL_PATH_TEXT = os.getenv('MODEL_PATH_TEXT', '/Users/hugoguilbot/VALDOM/INSA/A
 DATAFRAME_IMAGE_PATH = os.getenv('DATAFRAME_IMAGE_PATH', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/dataframe.pkl')
 DATAFRAME_TEXT_PATH = os.getenv('DATAFRAME_TEXT_PATH', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl')
 
+# MODEL_PATH_SYST_RECO = os.getenv('MODEL_PATH_SYST_RECO', '/app/Anno_Index/annoy_index.ann')
+# MODEL_PATH_TEXT = os.getenv('MODEL_PATH_TEXT', '/app/Anno_Index/annoy_movies_index.ann')
+# DATAFRAME_IMAGE_PATH = os.getenv('DATAFRAME_IMAGE_PATH', '/app/Dataframe/dataframe.pkl')
+# DATAFRAME_TEXT_PATH = os.getenv('DATAFRAME_TEXT_PATH', '/app/Dataframe/movies_with_embeddings.pkl')
+
+
 # Chargement des index et des dataframes une seule fois
 dim_image = 576 
 dim_text = 768 
@@ -33,6 +39,7 @@ def search(image_bool, query_vector, k=5):
             return paths
         else:
             indices = annoy_index_text.get_nns_by_vector(query_vector, k)
+            print("indices : ",indices)
             titles = df_text['title'][indices]
             print("les titres : ",titles)
             return titles
@@ -45,7 +52,7 @@ def recommend():
     data = request.json
     vector = data['vector']
     image_bool = data['image_bool']
-
+    
     if vector is None:
         return jsonify({"error": "No vector provided"}), 400
 

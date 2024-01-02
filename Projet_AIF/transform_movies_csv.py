@@ -83,27 +83,30 @@ class MovieSynopsisEmbedder:
 def get_annoy_index_movies_text():
     df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl')
     dim = len(df['embeddings'][0])  # La longueur des vecteurs de caractéristiques
-    #print(dim) -> 768
     annoy_index = AnnoyIndex(dim, 'angular')
 
-    for i, embedding in enumerate(df['embeddings']):
-        annoy_index.add_item(i, embedding)
+    for idx in df.index:  # Utiliser les indices du DataFrame
+        embedding = df.loc[idx, 'embeddings']
+        annoy_index.add_item(idx, embedding)
 
     annoy_index.build(10)
+    annoy_index.save('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Anno_Index/annoy_movies_index.ann')
 
-    #Enregistrement de l'index
-    annoy_index.save('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Anno_Index/annoy_movies_index.ann') 
 
 def main():
     # embedder = MovieSynopsisEmbedder('/content/movies_metadata.csv')
     # df_with_embeddings = embedder.add_embeddings_to_df()
     # embedder.save_embeddings('/content/movies_with_embeddings.pkl')
-    # get_annoy_index_movies_text()
-    print(pd.__version__)
-    with open('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl', 'rb') as file:
-            df_text = pickle.load(file)
-    #pd.__version__
-    print(df_text)
+    #get_annoy_index_movies_text()
+    # print(pd.__version__)
+    # with open('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl', 'rb') as file:
+    #         df_text = pickle.load(file)
+    # #pd.__version__
+    # print(df_text)
+    df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl')
+    # title = df.loc[25561, 'title']
+    # print("title : ",title)
+    print(df.loc[0, 'overview'])
 
 if __name__ == "__main__":
     main()
