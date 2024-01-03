@@ -1,11 +1,14 @@
 FROM python:3.8
 
+RUN apt-get update && apt-get install -y wget unzip
 RUN pip install jinja2
 RUN pip install gradio 
 
-COPY . /app
+RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1boYSvF_jT5lZcJnEWCP4kK3mVtbeRkgM' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1boYSvF_jT5lZcJnEWCP4kK3mVtbeRkgM" -O MLP-20M.zip && rm -rf /tmp/cookies.txt
+RUN unzip MLP-20M.zip -d /app/
+RUN rm MLP-20M.zip
 
-COPY MLP-20M/MLP-20M /app/MLP-20M/MLP-20M/
+COPY . /app
 
 WORKDIR /app
 
@@ -14,4 +17,3 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 EXPOSE 7860
 
 CMD ["python", "gradio_app.py"]
-

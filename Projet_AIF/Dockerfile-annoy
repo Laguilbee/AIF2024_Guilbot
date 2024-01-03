@@ -1,5 +1,26 @@
 FROM python:3.8
 
+# Installez wget pour télécharger les fichiers
+RUN apt-get update && apt-get install -y wget
+
+# Créez le répertoire pour les dataframes
+RUN mkdir -p /app/Dataframe
+
+# Téléchargez le fichier dataframe.pkl
+RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1zVfMR7W9EcWOdB-jJeafga9SVZU5HPW3' -O /app/Dataframe/dataframe.pkl 
+
+# Téléchargez le fichier movies_with_embeddigs.pkl
+RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1418mr555tBsWTkKu5awMNfS663MXwiUG' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1418mr555tBsWTkKu5awMNfS663MXwiUG" -O app/Dataframe/movies_with_embeddings.pkl && rm -rf /tmp/cookies.txt
+
+
+# Créez le répertoire pour les annoy index
+RUN mkdir -p /app/Annoy_Index
+
+# Téléchargez les fichiers d'index annoy
+RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1ZPOHmhILlTwKX0TGnIPARoih1kPpzvA1' -O /app/Annoy_Index/annoy_index.ann 
+
+RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1eWmNYoqh2bGloZkXRSgbGI6pVDze3h5g' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1eWmNYoqh2bGloZkXRSgbGI6pVDze3h5g" -O /app/Annoy_Index/annoy_movies_index.ann && rm -rf /tmp/cookies.txt
+
 WORKDIR /app
 
 COPY . /app
@@ -12,3 +33,5 @@ EXPOSE 5066
 ENV FLASK_ENV=production
 
 CMD ["python","systeme_reco_api.py"]
+
+
