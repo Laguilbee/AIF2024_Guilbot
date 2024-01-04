@@ -21,8 +21,6 @@ RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1
 
 RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1eWmNYoqh2bGloZkXRSgbGI6pVDze3h5g' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1eWmNYoqh2bGloZkXRSgbGI6pVDze3h5g" -O /app/Annoy_Index/annoy_movies_index.ann && rm -rf /tmp/cookies.txt
 
-WORKDIR /app
-
 COPY . /app
 
 RUN pip install --trusted-host pypi.python.org -r requirements.txt

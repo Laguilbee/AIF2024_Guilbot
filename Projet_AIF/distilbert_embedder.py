@@ -13,7 +13,6 @@ import torchvision.transforms as transforms
 from flask import Flask, request, jsonify
 from PIL import Image
 import io
-from annoy import AnnoyIndex
 import os
 
 def clean_text(text):
@@ -103,10 +102,10 @@ def main():
     #         df_text = pickle.load(file)
     # #pd.__version__
     # print(df_text)
-    df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl')
+    df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/movies_with_embeddings_bow.pkl')
     # title = df.loc[25561, 'title']
     # print("title : ",title)
-    print(df.loc[0, 'overview'])
+    print(df.loc[1000, 'bow_embeddings'])
 
 if __name__ == "__main__":
     main()
