@@ -1,7 +1,9 @@
 FROM python:3.8
 
+
+
 # Installez wget pour télécharger les fichiers
-RUN apt-get update && apt-get install -y wget
+RUN apt-get update && apt-get install -y wget unzip
 
 # Créez le répertoire pour les dataframes
 RUN mkdir -p /app/Dataframe
@@ -12,6 +14,8 @@ RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1
 # Téléchargez le fichier movies_with_embeddigs.pkl
 RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1418mr555tBsWTkKu5awMNfS663MXwiUG' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1418mr555tBsWTkKu5awMNfS663MXwiUG" -O app/Dataframe/movies_with_embeddings.pkl && rm -rf /tmp/cookies.txt
 
+# Téléchargez le fichier movies_with_index_embeddings_bow.pkl
+RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MERpQvPoiwEsjaNiaWgnphp_h3WKHpIs' -O /app/Dataframe/movies_with_index_embeddings_bow.pkl 
 
 # Créez le répertoire pour les annoy index
 RUN mkdir -p /app/Annoy_Index
@@ -21,9 +25,16 @@ RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1
 
 RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1eWmNYoqh2bGloZkXRSgbGI6pVDze3h5g' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1eWmNYoqh2bGloZkXRSgbGI6pVDze3h5g" -O /app/Annoy_Index/annoy_movies_index.ann && rm -rf /tmp/cookies.txt
 
+RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1iwLpGTur8N3Q04lj-oCbvzHL85FKGHEQ' -O annoy_movies_index_bow.ann.zip
+RUN unzip annoy_movies_index_bow.ann.zip -d /app/Annoy_Index
+RUN rm annoy_movies_index_bow.ann.zip
+
+WORKDIR /app
+
+COPY requirements.txt /app
 COPY . /app
 
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN pip install -r requirements.txt
 RUN pip install annoy
 
 EXPOSE 5066

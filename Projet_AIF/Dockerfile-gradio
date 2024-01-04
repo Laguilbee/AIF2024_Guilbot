@@ -8,11 +8,16 @@ RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=down
 RUN unzip MLP-20M.zip -d /app/
 RUN rm MLP-20M.zip
 
-COPY . /app
+# Créez le répertoire pour les dataframes
+RUN mkdir -p /app/Model
+RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1l_mpVn6d0I_XcOQsCsRnApNbDCKlNmJc' -O /app/Model/vectoriseur.pkl
 
 WORKDIR /app
 
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+COPY . /app
+
+RUN pip install -r requirements.txt
+RUN pip install scikit-learn
 
 EXPOSE 7860
 

@@ -47,6 +47,7 @@ class StemTokenizer:
         doc = doc.lower()
         return [self.stemmer.stem(t) for t in word_tokenize(re.sub("[^a-z' ]", "", doc)) if t not in self.ignore_tokens]
 
+
 def init_model(device):
     mobilenet = models.mobilenet_v3_small(weights='IMAGENET1K_V1')
     model = nn.Sequential(mobilenet.features,mobilenet.avgpool,nn.Flatten())
@@ -61,18 +62,14 @@ def init_distilbert_model(device):
     model.eval()
     return model
 
-model = init_model(device)
-distilBertModel = init_distilbert_model(device)
-# Initialisation du tokenizer et du vectoriseur
-# tokenizer = StemTokenizer()
-# vectorizer = TfidfVectorizer(stop_words=tokenizer(' '.join(stop_words)), tokenizer=tokenizer)
-
-def load_vectorizer(vectorizer_path):
+def init_vectorizer(vectorizer_path):
     with open(vectorizer_path, 'rb') as file:
         vectorizer = pickle.load(file)
     return vectorizer
 
-vectorizer = load_vectorizer('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Model_Pretrain/vectoriseur.pkl')
+model = init_model(device)
+distilBertModel = init_distilbert_model(device)
+vectorizer = init_vectorizer('/app/Model/vectoriseur.pkl')
 
 
 def normalize_image(image):
@@ -105,8 +102,8 @@ def predict_images_with_image(image):
     feature_vector = extract_features(image, model).flatten()
     #print("feature_vector = ",feature_vector)
     response = requests.post(
-        "http://0.0.0.0:5066/recommend", 
-        json={"vector": feature_vector.tolist(),"image_bool":True}
+        "http://annoy-db:5066/recommend", 
+        json={"vector": feature_vector.tolist(),"image_bool":True, "methode_bool": False}
     )
 
     if response.status_code == 200:
@@ -139,8 +136,8 @@ def predict_images_with_text(description):
 
 
     response = requests.post(
-        "http://0.0.0.0:5066/recommend", 
-        json={"vector": embeddings.tolist(),"image_bool":False}
+        "http://annoy-db:5066/recommend", 
+        json={"vector": embeddings.tolist(),"image_bool":False,"methode_bool": True}
     )
 
     print("reponse : ",response)
@@ -155,7 +152,7 @@ def predict_images_with_text_bow(description):
     indices, values = description_to_bow_vector(description)
 
     response = requests.post(
-        "http://0.0.0.0:5066/recommend", 
+        "http://annoy-db:5066/recommend", 
         json={"vector": {"indices": indices.tolist(), "values": values.tolist()}, "image_bool": False, "methode_bool": False}
     )
 
@@ -167,23 +164,36 @@ def predict_images_with_text_bow(description):
         print(f"Erreur API: {response.status_code}")
         return f"Erreur API: {response.status_code}"
 
+
 if __name__ == '__main__':
 
 
     with gr.Blocks() as demo:
-        gr.Markdown("Système de recommandation.")
-        with gr.Tab("Recommandation de film par synopsis"):
-            text_input = gr.Textbox()
-            text_output = gr.Textbox()
+        gr.Markdown("""
+        # LE SYSTÈME DE RECOMMANDATION !
+        """)
+        with gr.Tab("Recommandation de film par synopsis (BERT)"):
+            text_input = gr.Textbox(label="Description :",placeholder="Taper la descrition d'un film")
+            text_output = gr.Textbox(label="Recommandation :")
             text_button = gr.Button("Prédire")
+            clear = gr.Button("Clear")
+            text_button.click(predict_images_with_text, inputs=text_input, outputs=text_output)
+            clear.click(lambda: None, None, text_input, queue=False)
+        with gr.Tab("Recommandation de film par synopsis (BOW)"):
+            text_input = gr.Textbox(label="Description :",placeholder="Taper la descrition d'un film")
+            text_output = gr.Textbox(label="Recommandation :")
+            text_button = gr.Button("Prédire")
+            clear = gr.Button("Clear")
             text_button.click(predict_images_with_text_bow, inputs=text_input, outputs=text_output)
+            clear.click(lambda: None, None, text_input, queue=False)
         with gr.Tab("Recommandation de film par affiche"):
             with gr.Row():
                 image_input = gr.Image(label="Déposer votre affiche de film ici : ")
                 image_output = [GradioImage(type="pil",label="Film n°"+str(i)+" recommandé : ") for i in range(5)]
             image_button = gr.Button("Prédire")
-            refresh_button = gr.Button("Rafraichir")
+            clear = gr.Button("Clear")
             image_button.click(predict_images_with_image, inputs=image_input, outputs=image_output)
+            clear.click(lambda: None, None, image_output, queue=False)
 
     
 
