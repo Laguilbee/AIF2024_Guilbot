@@ -9,24 +9,25 @@ app = Flask(__name__)
 # Chemins vers les fichiers d'index et de données
 # MODEL_PATH_SYST_RECO = os.getenv('MODEL_PATH_SYST_RECO', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Annoy_Index/annoy_index.ann')
 # MODEL_PATH_TEXT = os.getenv('MODEL_PATH_TEXT', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Annoy_Index/annoy_movies_index.ann')
+# MODEL_PATH_TEXT_BOW = os.getenv('MODEL_PATH_TEXT_BOW', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/annoy_movies_index_bow.ann')
+
 # DATAFRAME_IMAGE_PATH = os.getenv('DATAFRAME_IMAGE_PATH', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/dataframe.pkl')
 # DATAFRAME_TEXT_PATH = os.getenv('DATAFRAME_TEXT_PATH', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings.pkl')
-#MODEL_PATH_TEXT_BOW = os.getenv('MODEL_PATH_TEXT_BOW', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Annoy_Index/annoy_movies_index_bow.ann')
-# DATAFRAME_TEXT_PATH_BOW = os.getenv('DATAFRAME_TEXT_PATH_BOW', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_index_embeddings_bow.pkl')
+# DATAFRAME_TEXT_PATH_BOW = os.getenv('DATAFRAME_TEXT_PATH_BOW', '/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/test_movies_with_index_embeddings_bow.pkl')
 
 
 MODEL_PATH_SYST_RECO = os.getenv('MODEL_PATH_SYST_RECO', '/app/Annoy_Index/annoy_index.ann')
 MODEL_PATH_TEXT = os.getenv('MODEL_PATH_TEXT', '/app/Annoy_Index/annoy_movies_index.ann')
-MODEL_PATH_TEXT_BOW = os.getenv('MODEL_PATH_TEXT_BOW', '/app/Annoy_Index/annoy_movies_index_bow.ann')
+MODEL_PATH_TEXT_BOW = os.getenv('MODEL_PATH_TEXT_BOW', '/app/Annoy_Index/annoy_movies_bow.ann')
 
 DATAFRAME_IMAGE_PATH = os.getenv('DATAFRAME_IMAGE_PATH', '/app/Dataframe/dataframe.pkl')
 DATAFRAME_TEXT_PATH = os.getenv('DATAFRAME_TEXT_PATH', '/app/Dataframe/movies_with_embeddings.pkl')
-DATAFRAME_TEXT_PATH_BOW = os.getenv('DATAFRAME_TEXT_PATH_BOW', '/app/Dataframe/movies_with_index_embeddings_bow.pkl')
+DATAFRAME_TEXT_PATH_BOW = os.getenv('DATAFRAME_TEXT_PATH_BOW', '/app/Dataframe/movies_with_embeddings_bow.pkl')
 
 # Chargement des index et des dataframes une seule fois
 dim_image = 576 
 dim_text = 768 
-dim_text_bow = 65322
+dim_text_bow = 5000
 
 annoy_index_image = AnnoyIndex(dim_image, 'angular')
 annoy_index_text = AnnoyIndex(dim_text, 'angular')
@@ -43,17 +44,6 @@ with open(DATAFRAME_TEXT_PATH, 'rb') as file:
 with open(DATAFRAME_TEXT_PATH_BOW, 'rb') as file:
     df_text_bow = pickle.load(file)
 
-def rebuild_dense_vector(sparse_indices,sparse_values, dim):
-    # Initialiser un vecteur dense de zéros
-    dense_vector = np.zeros(dim)
-    # Remplir le vecteur dense avec les valeurs non nulles
-    for col, val in zip(sparse_indices, sparse_values):
-        dense_vector[col] = val
-    
-    return dense_vector
-
-
-
 def search(image_bool,methode_bool, query_vector, k=5):
     try:
         if image_bool:
@@ -66,10 +56,7 @@ def search(image_bool,methode_bool, query_vector, k=5):
                 titles = df_text['title'][indices]
                 return titles
             else :
-                indices = query_vector["indices"]
-                values = query_vector["values"]
-                dense_vector = rebuild_dense_vector(indices, values, dim_text_bow)
-                indices = annoy_index_text_bow.get_nns_by_vector(dense_vector, k)
+                indices = annoy_index_text_bow.get_nns_by_vector(query_vector, k)
                 titles = df_text_bow['title'][indices]
                 return titles
     except Exception as e:

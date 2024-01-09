@@ -3,14 +3,12 @@ import gradio as gr
 import torch.nn as nn
 from PIL import Image as PILImage
 import torchvision.transforms as transforms
-from torchvision.transforms.functional import to_pil_image
 import numpy as np
 import torchvision.models as models
 import requests
 from gradio.components import Image as GradioImage
 from transformers import DistilBertModel,DistilBertTokenizerFast
 import re
-from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk import word_tokenize
 from nltk.stem import SnowballStemmer
 import nltk
@@ -69,7 +67,7 @@ def init_vectorizer(vectorizer_path):
 
 model = init_model(device)
 distilBertModel = init_distilbert_model(device)
-vectorizer = init_vectorizer('/app/Model/vectoriseur.pkl')
+vectorizer = init_vectorizer('/app/Model/new_vectoriseur.pkl')
 
 
 def normalize_image(image):
@@ -85,11 +83,15 @@ def extract_features(image, model):
         features = model(image_tensor)
     return features.cpu().numpy()
 
+# def description_to_bow_vector(description):
+#     bow_vector = vectorizer.transform([description])
+#     indices = bow_vector.nonzero()[1]
+#     values = bow_vector.data
+#     return indices, values
+
 def description_to_bow_vector(description):
     bow_vector = vectorizer.transform([description])
-    indices = bow_vector.nonzero()[1]
-    values = bow_vector.data
-    return indices, values
+    return bow_vector
 
 def clean_text(text):
     # Supprimer les caractères spéciaux et les chiffres
@@ -149,11 +151,13 @@ def predict_images_with_text(description):
         return f"Erreur API: {response.status_code}"
 
 def predict_images_with_text_bow(description):
-    indices, values = description_to_bow_vector(description)
-
+    vector = description_to_bow_vector(description)
+    
+    vector = vector.toarray()[0]
+    print("passage 1",len(vector))
     response = requests.post(
         "http://annoy-db:5066/recommend", 
-        json={"vector": {"indices": indices.tolist(), "values": values.tolist()}, "image_bool": False, "methode_bool": False}
+        json={"vector": vector.tolist(), "image_bool": False, "methode_bool": False}
     )
 
     print("reponse : ",response)

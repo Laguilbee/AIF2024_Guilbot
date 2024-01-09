@@ -10,7 +10,7 @@ RUN rm MLP-20M.zip
 
 # Créez le répertoire pour les dataframes
 RUN mkdir -p /app/Model
-RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1l_mpVn6d0I_XcOQsCsRnApNbDCKlNmJc' -O /app/Model/vectoriseur.pkl
+RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=14nLRR5fZKPn01Y4HaeMohGsfpbESJB-u' -O /app/Model/new_vectoriseur.pkl
 
 WORKDIR /app
 

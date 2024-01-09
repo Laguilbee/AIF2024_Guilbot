@@ -8,6 +8,7 @@ from nltk.corpus import stopwords
 from annoy import AnnoyIndex
 import numpy as np
 import pickle
+from scipy import sparse
 
 # Assurez-vous que ces téléchargements ne sont faits qu'une seule fois
 nltk.download('punkt')
@@ -30,7 +31,7 @@ class MovieSynopsisBoW:
         self.dataframe_path = dataframe_path
         self.tokenizer = StemTokenizer()
         self.stop_words = self.tokenizer(' '.join(stop_words))
-        self.vectorizer = TfidfVectorizer(stop_words=self.stop_words, tokenizer=self.tokenizer)
+        self.vectorizer = TfidfVectorizer(stop_words=self.stop_words, tokenizer=self.tokenizer,max_features=5000)
 
     def load_data(self):
         df = pd.read_csv(self.dataframe_path)
@@ -56,12 +57,7 @@ class MovieSynopsisBoW:
     def add_embeddings_to_df(self):
         df = self.load_data()
         embeddings = self.create_bow_embeddings(df['overview'])
-        
-        # Stocker les indices et les valeurs non nulles pour chaque vecteur
-        df['bow_embeddings'] = [
-            (embedding.nonzero()[1], embedding.data) 
-            for embedding in embeddings
-        ]
+        df['bow_embeddings'] = list(embeddings)
         return df
 
 
@@ -76,50 +72,49 @@ class MovieSynopsisBoW:
         with open(output_path, 'wb') as file:
             pickle.dump(self.vectorizer, file)
 
+def get_annoy_index_movies_bow():
+    df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/test_movies_with_index_embeddings_bow.pkl')
+    dim = len(df.loc[0, 'bow_embeddings'].toarray()[0])  # La longueur des vecteurs de caractéristiques
+    annoy_index = AnnoyIndex(dim, 'angular')
+
+    for idx in df.index:  # Utiliser les indices du DataFrame
+        dense_vector = df.at[idx, 'bow_embeddings'].toarray()[0]
+        annoy_index.add_item(idx, dense_vector)
+
+    annoy_index.build(50)
+    annoy_index.save('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/annoy_movies_index_bow.ann')
+        
 # def get_annoy_index_movies_bow():
-#     df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_embeddings_bow.pkl')
-#     dim = len(df['bow_embeddings'][0])  # La longueur des vecteurs de caractéristiques
+#     df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_index_embeddings_bow.pkl')
+#     dim = 65322  # La longueur des vecteurs de caractéristiques
 #     annoy_index = AnnoyIndex(dim, 'angular')
 
-#     for idx in df.index:  # Utiliser les indices du DataFrame
-#         embedding = df.loc[idx, 'bow_embeddings']
-#         annoy_index.add_item(idx, embedding)
+#     for idx in df.index:
+#         # Initialiser un vecteur dense de zéros
+#         dense_vector = np.zeros(dim)
+#         # Récupérer les indices et les valeurs
+#         indices, values = df.at[idx, 'bow_embeddings']
+        
+#         # Remplir le vecteur dense avec les valeurs non nulles
+#         for col, val in zip(indices, values):
+#             dense_vector[col] = val
+
+#         # Ajouter le vecteur dense à l'index Annoy
+#         annoy_index.add_item(idx, dense_vector)
 
 #     annoy_index.build(10)
 #     annoy_index.save('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Annoy_Index/annoy_movies_index_bow.ann')
-        
-def get_annoy_index_movies_bow():
-    df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_index_embeddings_bow.pkl')
-    dim = 65322  # La longueur des vecteurs de caractéristiques
-    annoy_index = AnnoyIndex(dim, 'angular')
-
-    for idx in df.index:
-        # Initialiser un vecteur dense de zéros
-        dense_vector = np.zeros(dim)
-        # Récupérer les indices et les valeurs
-        indices, values = df.at[idx, 'bow_embeddings']
-        
-        # Remplir le vecteur dense avec les valeurs non nulles
-        for col, val in zip(indices, values):
-            dense_vector[col] = val
-
-        # Ajouter le vecteur dense à l'index Annoy
-        annoy_index.add_item(idx, dense_vector)
-
-    annoy_index.build(10)
-    annoy_index.save('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Annoy_Index/annoy_movies_index_bow.ann')
 
 # Exemple d'utilisation
 def main():
     embedder = MovieSynopsisBoW('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Movies/movies_metadata.csv')
     #print(embedder.dim)
-    #embedder.save_embeddings('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_index_embeddings_bow.pkl')
+    #embedder.save_embeddings('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/test_movies_with_index_embeddings_bow.pkl')
     #get_annoy_index_movies_bow()
-    embedder.save_vectorizer('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Model_Pretrain/vectoriseur.pkl')
-    # df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/Dataframe/movies_with_index_embeddings_bow.pkl')
-    # print(df.loc[0, 'bow_embeddings'])
-    #dim = len(df['bow_embeddings'][0]) 
-    #print(dim)
+    embedder.save_vectorizer('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/test_vectoriseur.pkl')
+    #df = pd.read_pickle('/Users/hugoguilbot/VALDOM/INSA/AIF2024_Guilbot/Projet_AIF/test_movies_with_index_embeddings_bow.pkl')
+    #print(len(df.loc[0, 'bow_embeddings'].toarray()[0]))
+
 
 
 if __name__ == "__main__":

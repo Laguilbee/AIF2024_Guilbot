@@ -9,3 +9,4 @@ matplotlib==3.7.2
 gradio==3.39.0
 transformers
 nltk
+scipy
