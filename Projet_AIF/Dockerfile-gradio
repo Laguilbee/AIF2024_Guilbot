@@ -1,18 +1,18 @@
 FROM python:3.8
 
+WORKDIR /app
+
 RUN apt-get update && apt-get install -y wget unzip
 RUN pip install jinja2
 RUN pip install gradio 
 
-RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1boYSvF_jT5lZcJnEWCP4kK3mVtbeRkgM' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1boYSvF_jT5lZcJnEWCP4kK3mVtbeRkgM" -O MLP-20M.zip && rm -rf /tmp/cookies.txt
-RUN unzip MLP-20M.zip -d /app/
+RUN wget -O MLP-20M.zip "https://www.dropbox.com/scl/fi/7ot2a906wmmovvi2jnbuq/MLP-20M.zip?rlkey=87r6wmfitc2r3s3uknyfy9cob&dl=1"
+RUN unzip MLP-20M.zip -d /app
 RUN rm MLP-20M.zip
 
 # Créez le répertoire pour les dataframes
 RUN mkdir -p /app/Model
-RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=14nLRR5fZKPn01Y4HaeMohGsfpbESJB-u' -O /app/Model/new_vectoriseur.pkl
-
-WORKDIR /app
+RUN wget --no-check-certificate 'https://www.dropbox.com/scl/fi/tovknolbnnryjlqmaw7i7/new_vectoriseur.pkl?rlkey=k84j5durnxk9vktdwm2lu5ttg&dl=1' -O /app/Model/new_vectoriseur.pkl
 
 COPY . /app
 

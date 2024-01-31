@@ -16,27 +16,29 @@ import re
 from nltk.corpus import stopwords
 import pickle
 
-# Vérification de la disponibilité de CUDA
+# Configuration de l'appareil (GPU ou CPU) pour le traitement du modèle
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Paramètres de normalisation des images pour le modèle MobileNet
 mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
 normalize = transforms.Normalize(mean, std)
 
+# Transformation appliquée aux images avant de les passer au modèle
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     normalize
 ])
 
-# Assurez-vous que ces téléchargements ne sont faits qu'une seule fois
+# Téléchargement des données nécessaires pour le traitement du texte
 nltk.download('punkt')
 nltk.download('stopwords')
 
 
 stop_words = set(stopwords.words('english'))
 
-# Interface lemma tokenizer from nltk with sklearn
+# Classe pour tokeniser et lemmatiser le texte
 class StemTokenizer:
     ignore_tokens = [',', '.', ';', ':', '"', '``', "''", '`']
     def __init__(self):
@@ -45,7 +47,7 @@ class StemTokenizer:
         doc = doc.lower()
         return [self.stemmer.stem(t) for t in word_tokenize(re.sub("[^a-z' ]", "", doc)) if t not in self.ignore_tokens]
 
-
+# Initialisation des modèles pour les images et le texte
 def init_model(device):
     mobilenet = models.mobilenet_v3_small(weights='IMAGENET1K_V1')
     model = nn.Sequential(mobilenet.features,mobilenet.avgpool,nn.Flatten())
@@ -60,20 +62,20 @@ def init_distilbert_model(device):
     model.eval()
     return model
 
+# Chargement du vectoriseur pour le traitement de texte BoW
 def init_vectorizer(vectorizer_path):
     with open(vectorizer_path, 'rb') as file:
         vectorizer = pickle.load(file)
     return vectorizer
 
+# Initialisation des modèles et du vectoriseur
 model = init_model(device)
 distilBertModel = init_distilbert_model(device)
 vectorizer = init_vectorizer('/app/Model/new_vectoriseur.pkl')
 
-
+# Fonctions pour normaliser les images et extraire les caractéristiques
 def normalize_image(image):
-    # Convertir l'image NumPy en image PIL si nécessaire
     image = PILImage.fromarray(image)
-    # Appliquer la transformation
     image_tensor = transform(image).unsqueeze(0)
     return image_tensor
 
@@ -83,16 +85,12 @@ def extract_features(image, model):
         features = model(image_tensor)
     return features.cpu().numpy()
 
-# def description_to_bow_vector(description):
-#     bow_vector = vectorizer.transform([description])
-#     indices = bow_vector.nonzero()[1]
-#     values = bow_vector.data
-#     return indices, values
-
+# Transformation du texte en vecteur BoW
 def description_to_bow_vector(description):
     bow_vector = vectorizer.transform([description])
     return bow_vector
 
+# Nettoyage du texte
 def clean_text(text):
     # Supprimer les caractères spéciaux et les chiffres
     text = re.sub(r'[^a-zA-Z\s]', '', text)
@@ -100,6 +98,7 @@ def clean_text(text):
     text = text.lower()
     return text
 
+# Fonctions de prédiction pour les images et le texte
 def predict_images_with_image(image):
     feature_vector = extract_features(image, model).flatten()
     #print("feature_vector = ",feature_vector)
@@ -120,8 +119,6 @@ def predict_images_with_image(image):
         print(f"Erreur API: {response.status_code}")
         return f"Erreur API: {response.status_code}"
     
-
-
 def predict_images_with_text(description):
     description = clean_text(description)
     tokenizer_model='distilbert-base-uncased'
@@ -168,9 +165,8 @@ def predict_images_with_text_bow(description):
         print(f"Erreur API: {response.status_code}")
         return f"Erreur API: {response.status_code}"
 
-
+# Configuration et lancement de l'interface Gradio
 if __name__ == '__main__':
-
 
     with gr.Blocks() as demo:
         gr.Markdown("""

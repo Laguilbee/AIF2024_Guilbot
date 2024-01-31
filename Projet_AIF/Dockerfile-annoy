@@ -1,7 +1,5 @@
 FROM python:3.8
 
-
-
 # Installez wget pour télécharger les fichiers
 RUN apt-get update && apt-get install -y wget unzip
 
@@ -9,23 +7,20 @@ RUN apt-get update && apt-get install -y wget unzip
 RUN mkdir -p /app/Dataframe
 
 # Téléchargez le fichier dataframe.pkl
-RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1zVfMR7W9EcWOdB-jJeafga9SVZU5HPW3' -O /app/Dataframe/dataframe.pkl 
-
+RUN wget --no-check-certificate 'https://www.dropbox.com/scl/fi/9jxj0j21olsz4xx5d4phb/dataframe.pkl?rlkey=7tg6h699xuwmjpk47jhfjrzeq&dl=1' -O /app/Dataframe/dataframe.pkl 
 # Téléchargez le fichier movies_with_embeddigs.pkl
-RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1418mr555tBsWTkKu5awMNfS663MXwiUG' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1418mr555tBsWTkKu5awMNfS663MXwiUG" -O app/Dataframe/movies_with_embeddings.pkl && rm -rf /tmp/cookies.txt
-
+RUN wget --no-check-certificate 'https://www.dropbox.com/scl/fi/m0pqzclngdor2ckjbyknj/movies_with_embeddings.pkl?rlkey=rwxlrm7wp1jao0aulemfvwcc5&dl=1' -O app/Dataframe/movies_with_embeddings.pkl
 # Téléchargez le fichier movies_with_embeddings_bow.pkl
-RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1x-iUt7Fb0bXiVR7IVnmsJCUkrZ6Of2Sa' -O /app/Dataframe/movies_with_embeddings_bow.pkl 
+RUN wget --no-check-certificate 'https://www.dropbox.com/scl/fi/bach2ybboufeya4yv4dgk/movies_with_embeddings_bow.pkl?rlkey=g91g2omhkzvplkri4tr72pfce&dl=1' -O /app/Dataframe/movies_with_embeddings_bow.pkl 
 # Créez le répertoire pour les annoy index
 RUN mkdir -p /app/Annoy_Index
 
-# Téléchargez les fichiers d'index annoy
-RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1ZPOHmhILlTwKX0TGnIPARoih1kPpzvA1' -O /app/Annoy_Index/annoy_index.ann 
+# # Téléchargez les fichiers d'index annoy
+RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/xrd9vb1tmatwljcb8bumm/annoy_index.ann?rlkey=6rgk5yznn8r7iks017v2rt9vh&dl=1" -O /app/Annoy_Index/annoy_index.ann 
 
-RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1eWmNYoqh2bGloZkXRSgbGI6pVDze3h5g' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1eWmNYoqh2bGloZkXRSgbGI6pVDze3h5g" -O /app/Annoy_Index/annoy_movies_index.ann && rm -rf /tmp/cookies.txt
+RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/4oi177h2gncqoji5v3k85/annoy_movies_index.ann?rlkey=dr4jp8xmbrr0qa8fgphrlpimy&dl=1" -O /app/Annoy_Index/annoy_movies_index.ann
 
-RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1Y81gk2A8w0g7b8iTVzvsr4IdJDOoSrA0' -O annoy_movies_bow.ann.zip
-
+RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/b849m0o0pntyg54mruzzz/annoy_movies_bow.ann.zip?rlkey=yyjbp6ytixhds02jrihs9rs4x&dl=1" -O annoy_movies_bow.ann.zip
 RUN unzip annoy_movies_bow.ann.zip -d /app/Annoy_Index
 RUN rm annoy_movies_bow.ann.zip
 
