@@ -16,11 +16,11 @@ RUN wget --no-check-certificate 'https://www.dropbox.com/scl/fi/bach2ybboufeya4y
 RUN mkdir -p /app/Annoy_Index
 
 # # Téléchargez les fichiers d'index annoy
-RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/xrd9vb1tmatwljcb8bumm/annoy_index.ann?rlkey=6rgk5yznn8r7iks017v2rt9vh&dl=1" -O /app/Annoy_Index/annoy_index.ann 
+RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/qp7trohp21swtsvg7ttym/annoy_index.ann?rlkey=wdyngr7ntolt5vbyk1nm1poqh&dl=1" -O /app/Annoy_Index/annoy_index.ann 
 
-RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/4oi177h2gncqoji5v3k85/annoy_movies_index.ann?rlkey=dr4jp8xmbrr0qa8fgphrlpimy&dl=1" -O /app/Annoy_Index/annoy_movies_index.ann
+RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/upe0d9paz5kmuzhbocs6x/annoy_movies_index.ann?rlkey=8wulc7y0b802l79ri4qtoxcaj&dl=1" -O /app/Annoy_Index/annoy_movies_index.ann
 
-RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/b849m0o0pntyg54mruzzz/annoy_movies_bow.ann.zip?rlkey=yyjbp6ytixhds02jrihs9rs4x&dl=1" -O annoy_movies_bow.ann.zip
+RUN wget --no-check-certificate "https://www.dropbox.com/scl/fi/hp8xskatwl65q9q62d5l2/annoy_movies_bow.ann.zip?rlkey=cbbtmp3b85m0bvnq286mr9f50&dl=1" -O annoy_movies_bow.ann.zip
 RUN unzip annoy_movies_bow.ann.zip -d /app/Annoy_Index
 RUN rm annoy_movies_bow.ann.zip
 
