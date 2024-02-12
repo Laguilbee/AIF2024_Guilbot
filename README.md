@@ -1,7 +1,8 @@
-# Recommendation System
+# Text and Image-Based Movie Recommendation System
 
 ## Introduction
-This project develops a text-based recommendation system that utilizes various embedding techniques, including Annoy (Approximate Nearest Neighbors Oh Yeah), Bag of Words (BoW), and DistilBERT, to provide fast and accurate recommendations. The system is designed to be interacted with through a Gradio web interface, making it accessible for users to query and receive recommendations. The backend is built with Python and can be easily deployed using Docker, ensuring compatibility and ease of setup across different environments.
+This project develops a text and image-based movie recommendation system that utilizes various embedding techniques, including Annoy (Approximate Nearest Neighbors), Bag of Words (BoW), and DistilBERT, to provide fast and accurate recommendations. The system is designed to be interacted with through a Gradio web interface, making it accessible for users to query and receive recommendations. The backend is built with Python and can be easily deployed using Docker, ensuring compatibility and ease of setup across different environments.
+
 
 ## Table of Contents
 1. [Introduction](#introduction)
