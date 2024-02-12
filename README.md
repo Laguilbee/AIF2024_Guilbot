@@ -1,6 +1,4 @@
-# Projet AIF
-
-# Text-Based Recommendation System
+# Recommendation System
 
 ## Introduction
 This project develops a text-based recommendation system that utilizes various embedding techniques, including Annoy (Approximate Nearest Neighbors Oh Yeah), Bag of Words (BoW), and DistilBERT, to provide fast and accurate recommendations. The system is designed to be interacted with through a Gradio web interface, making it accessible for users to query and receive recommendations. The backend is built with Python and can be easily deployed using Docker, ensuring compatibility and ease of setup across different environments.
@@ -34,13 +32,22 @@ To run the project outside Docker, Python 3.8 or later is required. Dependencies
 ## Usage
 
 ### Running the Application
-With Docker:
+
+Navigate to the Project :
+
+```
+cd Projet_AIF/
+```
+
+and run Docker:
 ```bash
 docker-compose up
 ```
 
 ### Interacting with the Web Interface
-Once the application is running, navigate to the Gradio web interface URL displayed in the console to input queries and receive recommendations.
+
+Once the application is running, navigate to the Gradio web interface URL (http://localhost:7860/) displayed in the console to input queries and receive recommendations. The Gradio interface may take some time to become available; please allow a few moments for it to fully load.
+
 
 ## Dependencies
 Dependencies are listed in the requirements.txt file, including Flask for the API, Gradio for the web interface, and Hugging Face Transformers for DistilBERT embeddings, among others.
